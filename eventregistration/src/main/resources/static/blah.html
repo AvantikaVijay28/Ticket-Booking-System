@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Concert Seat Selector — Red & Black</title>
+  <style>
+    :root{
+      --bg-1: #0b0b0b;
+      --bg-2: #120405;
+      --accent: #ff2d2d;
+      --muted: #8b8b8b;
+      --glass: rgba(255,255,255,0.03);
+      --card-gradient: linear-gradient(135deg, rgba(255,45,45,0.07), rgba(255,45,45,0.02));
+      --glass-border: rgba(255,255,255,0.04);
+      --glow: 0 8px 30px rgba(255,45,45,0.08);
+      --radius: 16px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    /* Page layout */
+    html,body{height:100%;margin:0;background:radial-gradient(ellipse at 10% 10%, rgba(255,45,45,0.02), transparent 8%), linear-gradient(180deg,var(--bg-1),var(--bg-2));color:#fff}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:48px}
+    .card{width:1100px;max-width:calc(100% - 48px);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--glass-border);backdrop-filter: blur(6px);border-radius:20px;padding:28px;box-shadow: var(--glow);}
+
+    header{display:flex;align-items:center;gap:20px;margin-bottom:18px}
+    .logo{width:68px;height:68px;border-radius:12px;background:linear-gradient(135deg,#1a0000,#300000);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(0,0,0,0.6), 0 0 12px rgba(255,45,45,0.06);}
+    .logo h1{font-size:20px;margin:0;letter-spacing:1px;color:var(--accent)}
+    h2{margin:0;font-size:20px}
+    p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+    /* selector grid */
+    form.selector{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
+
+    /* left area - seats */
+    .seats{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+
+    /* Hidden radios */
+    input[type="radio"]{display:none}
+
+    .seat-card{position:relative;padding:20px;border-radius:14px;background:var(--card-gradient);border:1px solid rgba(255,255,255,0.03);min-height:160px;overflow:hidden;cursor:pointer;transition:transform .28s cubic-bezier(.2,.9,.25,1), box-shadow .28s, border-color .28s}
+    .seat-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,0.6)}
+
+    /* decorative stripes */
+    .seat-card::before{content:"";position:absolute;left:-40px;top:-50px;width:260px;height:260px;border-radius:50%;background:conic-gradient(from 90deg at 50% 50%, rgba(255,45,45,0.06), transparent 60%);pointer-events:none}
+
+    .seat-top{display:flex;align-items:center;justify-content:space-between}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;font-weight:600;font-size:13px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.03)}
+    .badge .dot{width:10px;height:10px;border-radius:50%}
+
+    .seat-name{font-size:18px;margin:12px 0 6px}
+    .seat-price{font-weight:700;color:var(--accent)}
+    .seat-desc{color:var(--muted);font-size:13px}
+
+    /* styles for each section color */
+    label[for="bronze"] .dot{background:#b06a2f}
+    label[for="gold"] .dot{background:#ffd166}
+    label[for="vip"] .dot{background:#c2c2c2}
+    label[for="platinum"] .dot{background:#ffffff}
+
+    /* when checked — highlight */
+    input#bronze:checked + label[for="bronze"],
+    input#gold:checked + label[for="gold"],
+    input#vip:checked + label[for="vip"],
+    input#platinum:checked + label[for="platinum"]{
+      border:1px solid rgba(255,45,45,0.26);
+      box-shadow:0 30px 60px rgba(255,45,45,0.06), 0 0 60px rgba(255,45,45,0.03) inset;
+      transform:translateY(-12px) scale(1.02);
+    }
+
+    /* right area - details */
+    .details{background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);min-height:320px}
+    .details h3{margin-top:0}
+    .price-large{font-size:34px;color:var(--accent);margin:6px 0 12px}
+    .info{color:var(--muted);font-size:14px;line-height:1.6}
+
+    /* Proceed button container */
+.proceed-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+/* Proceed button styling */
+.proceed-btn {
+  background: linear-gradient(90deg, var(--accent), #ff6b6b);
+  color: #440509;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(255,45,45,0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.proceed-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 40px rgba(255,45,45,0.6);
+}
+
+/* Proceed button placement and style */
+.proceed-container {
+  grid-column: 2;            /* keeps it aligned below the right column */
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.proceed-btn {
+  background: linear-gradient(90deg, var(--accent), #ff6b6b);
+  color: #440606;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(255,45,45,0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.proceed-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 40px rgba(255,45,45,0.6);
+}
+
+/* Responsive adjustment */
+@media (max-width: 900px) {
+  .proceed-container {
+    grid-column: 1;
+    margin-top: 30px;
+  }
+}
+
+
+    /* show details based on checked radio using sibling selector */
+    .details .info-block{display:none}
+    #bronze:checked ~ .details .bronze-info,
+    #gold:checked ~ .details .gold-info,
+    #vip:checked ~ .details .vip-info,
+    #platinum:checked ~ .details .platinum-info{display:block}
+
+    /* bottom action */
+    .actions{display:flex;gap:12px;margin-top:18px}
+    .btn{padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff;font-weight:700;cursor:pointer}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),#ff6b6b);color:#120405;border:0}
+
+    /* responsive */
+    @media (max-width:900px){
+      form.selector{grid-template-columns:1fr;}
+      .seats{grid-template-columns:repeat(2,1fr)}
+      .details{order:3}
+    }
+    @media (max-width:520px){
+      .seats{grid-template-columns:1fr}
+      header{flex-direction:row;gap:12px}
+      .logo{width:54px;height:54px}
+      .card{padding:18px}
+    }
+
+    /* subtle animated pulse on stage */
+    .stage{margin-top:8px;border-radius:8px;padding:10px 12px;background:linear-gradient(90deg, rgba(255,45,45,0.04), rgba(255,45,45,0.02));font-weight:700;text-align:center;color:var(--muted);letter-spacing:1px}
+
+    /* small details for futuristic look */
+    .accent-line{height:4px;background:linear-gradient(90deg, rgba(255,45,45,0.4), rgba(255,45,45,0.05));border-radius:999px;margin-top:12px}
+
+    /* Animation for the price text */
+.price-large {
+  font-size: 34px;
+  color: var(--accent);
+  margin: 6px 0 12px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.price-large.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Splash screen full view */
+#splash {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 1.2s ease, visibility 1.2s ease;
+}
+
+#splash.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splash-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: zoomIn 3s ease forwards;
+}
+
+/* Optional zoom/fade animation for image */
+@keyframes zoomIn {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(1.05); opacity: 0.95; }
+}
+
+/* Fade-in animation for the main page */
+.wrap {
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.wrap.show {
+  opacity: 1;
+}
+
+  </style>
+</head>
+<body>
+  <!-- Splash Screen -->
+<div id="splash">
+  <img src="Seat1.jpg" alt="Concert Intro" class="splash-img">
+</div>
+
+  <div class="wrap">
+    <div class="card" role="application" aria-labelledby="title">
+      <header>
+        <div class="logo" aria-hidden="true"><h1>ARC</h1></div>
+        <div>
+          <h2 id="title">Select your section</h2>
+          <p class="lead">Choose the section which you would like to reserve</p>
+        </div>
+      </header>
+
+      <form class="selector" action="#" method="get">
+        <!-- Radios (hidden) + Labels act as cards -->
+        <div class="seats">
+
+          <input type="radio" name="section" id="bronze" checked>
+          <label for="bronze" class="seat-card" aria-labelledby="bronze-name">
+            <div class="seat-top">
+              <div class="badge"><span class="dot"></span> Bronze</div>
+              <div class="seat-price">₹499</div>
+            </div>
+            <div class="seat-name" id="bronze-name">Bronze Section</div>
+            <div class="seat-desc">Budget-friendly seats with good view of the stage. Ideal for casual listeners.</div>
+          </label>
+
+          <input type="radio" name="section" id="gold">
+          <label for="gold" class="seat-card" aria-labelledby="gold-name">
+            <div class="seat-top">
+              <div class="badge"><span class="dot"></span> Gold</div>
+              <div class="seat-price">₹999</div>
+            </div>
+            <div class="seat-name" id="gold-name">Gold Section</div>
+            <div class="seat-desc">Elevated view, premium comfort and quicker entry. Great balance of price and experience.</div>
+          </label>
+
+          <input type="radio" name="section" id="vip">
+          <label for="vip" class="seat-card" aria-labelledby="vip-name">
+            <div class="seat-top">
+              <div class="badge"><span class="dot"></span> VIP</div>
+              <div class="seat-price">₹1999</div>
+            </div>
+            <div class="seat-name" id="vip-name">VIP Section</div>
+            <div class="seat-desc">Closest to stage, exclusive perks and dedicated service. For true fans.</div>
+          </label>
+
+          <input type="radio" name="section" id="platinum">
+          <label for="platinum" class="seat-card" aria-labelledby="platinum-name">
+            <div class="seat-top">
+              <div class="badge"><span class="dot"></span> Platinum</div>
+              <div class="seat-price">₹3499</div>
+            </div>
+            <div class="seat-name" id="platinum-name">Platinum Section</div>
+            <div class="seat-desc">Ultimate experience: front-row, backstage vibes and collector's access.</div>
+          </label>
+
+        </div>
+
+        <!-- Right column: details driven by :checked -->
+        <aside class="details" aria-live="polite">
+          <h3>Section details</h3>
+
+          <div class="price-large">Selected price will show here</div>
+
+          <div class="info-block bronze-info">
+            <div class="stage">Stage view: Good · Entry: Standard · Seating: Regular</div>
+            <div class="info">Bronze offers the most affordable option with comfortable seating and a clear line of sight. Perfect if you want to enjoy the show without splurging.</div>
+            <div class="accent-line"></div>
+            <div class="actions">
+              <button class="btn">View map</button>
+              <button class="btn primary">Book Bronze — ₹499</button>
+            </div>
+          </div>
+
+          <div class="info-block gold-info">
+            <div class="stage">Stage view: Very Good · Entry: Priority · Seating: Cushioned</div>
+            <div class="info">Gold balances cost and comfort — better proximity and faster access than Bronze. Great for groups and dates.</div>
+            <div class="accent-line"></div>
+            <div class="actions">
+              <button class="btn">View map</button>
+              <button class="btn primary">Book Gold — ₹999</button>
+            </div>
+          </div>
+
+          <div class="info-block vip-info">
+            <div class="stage">Stage view: Excellent · Entry: Fast-track · Seating: VIP Lounge</div>
+            <div class="info">VIP brings you close to the action with upgraded amenities and a more intimate concert experience.</div>
+            <div class="accent-line"></div>
+            <div class="actions">
+              <button class="btn">View perks</button>
+              <button class="btn primary">Book VIP — ₹1999</button>
+            </div>
+          </div>
+
+          <div class="info-block platinum-info">
+            <div class="stage">Stage view: Front-row · Entry: Backstage access · Seating: Premium</div>
+            <div class="info">Platinum is for superfans: front-row seats, exclusive access, and premium hospitality to make the night unforgettable.</div>
+            <div class="accent-line"></div>
+            <div class="actions">
+              <button class="btn">View exclusive</button>
+              <button class="btn primary">Book Platinum — ₹3499</button>
+            </div>
+          </div>
+
+        </aside>
+      </form>
+
+    </div>
+    <div class="proceed-container">
+  <button class="btn proceed-btn" onclick="window.location.href='index.html'">
+    Proceed
+  </button>
+</div>
+
+  </div>
+  <script>
+  const radios = document.querySelectorAll('input[name="section"]');
+  const priceDisplay = document.querySelector('.price-large');
+
+  const prices = {
+    bronze: '₹499',
+    gold: '₹999',
+    vip: '₹1999',
+    platinum: '₹3499'
+  };
+
+  const names = {
+    bronze: 'Bronze',
+    gold: 'Gold',
+    vip: 'VIP',
+    platinum: 'Platinum'
+  };
+
+  // Function to update and animate price text
+  function updatePrice(radio) {
+    priceDisplay.classList.remove('show');
+    // Wait for transition reset
+    setTimeout(() => {
+      priceDisplay.textContent = `${names[radio.id]} — ${prices[radio.id]}`;
+      priceDisplay.classList.add('show');
+    }, 150);
+  }
+
+  // Add listeners for section change
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => updatePrice(radio));
+  });
+
+  // Initialize with default selected section
+  const checkedRadio = document.querySelector('input[name="section"]:checked');
+  if (checkedRadio) updatePrice(checkedRadio);
+</script>
+<script>
+  window.addEventListener('load', () => {
+    const splash = document.getElementById('splash');
+    const mainContent = document.querySelector('.wrap');
+    setTimeout(() => {
+      splash.classList.add('hidden');
+      mainContent.classList.add('show');
+    }, 1500); // 2.5 seconds before fading to main site
+  });
+</script>
+
+</body>
+</html>
