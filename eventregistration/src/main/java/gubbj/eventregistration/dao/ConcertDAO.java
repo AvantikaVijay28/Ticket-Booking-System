@@ -10,8 +10,8 @@ import java.util.*;
 public class ConcertDAO {
 
     private static final String URL = "jdbc:mysql://localhost:3306/eventregistration";
-    private static final String USER = "root";
-    private static final String PASSWORD = "A1n2n3l4y5";
+    private static final String USER = "";
+    private static final String PASSWORD = "";
 
     // ✅ Fetch all tickets
     public List<Concert> getAllTickets() {
