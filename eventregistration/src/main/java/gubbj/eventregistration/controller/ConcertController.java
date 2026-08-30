@@ -17,11 +17,11 @@ public class ConcertController {
 
     @GetMapping("/tickets")
     public List<Concert> getAllTickets() {
-        return service.getAllTickets();
+        return service.getTickets();
     }
 
     @PostMapping("/book")
-    public String bookTicket(@RequestBody Concert concert) {
-        return service.bookTicket(concert) ? "Booking successful!" : "Booking failed!";
+    public Concert bookTicket(@RequestBody Concert concert) {
+        return service.bookTicket(concert);
     }
 }

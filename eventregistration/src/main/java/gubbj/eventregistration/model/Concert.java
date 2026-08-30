@@ -1,21 +1,53 @@
 package gubbj.eventregistration.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "concert")
 public class Concert {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String name;
     private String email;
-    private int phone;
-    private String selectedSeats;
+    private String phone;
+    private String seats;
 
-    // Getters and Setters
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getName() {
+        return name;
+    }
 
-    public int getPhone() { return phone; }
-    public void setPhone(int phone) { this.phone = phone; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getSelectedSeats() { return selectedSeats; }
-    public void setSelectedSeats(String selectedSeats) { this.selectedSeats = selectedSeats; }
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getSeats() {
+        return seats;
+    }
+
+    public void setSeats(String seats) {
+        this.seats = seats;
+    }
 }
